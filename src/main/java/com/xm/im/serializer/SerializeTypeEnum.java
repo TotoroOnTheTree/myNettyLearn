@@ -1,6 +1,7 @@
 package com.xm.im.serializer;
 
 import java.util.Arrays;
+import lombok.Getter;
 
 /**
  * @author xm
@@ -8,9 +9,10 @@ import java.util.Arrays;
  * @date 2023/4/21
  * @since 1.0
  **/
+@Getter
 public enum SerializeTypeEnum {
     /** json **/
-    JSON((byte) 1),
+    JSON((byte) 3),
     UNKNOWN((byte)-127)
     ;
 

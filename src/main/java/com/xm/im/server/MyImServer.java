@@ -1,22 +1,18 @@
 package com.xm.im.server;
 
-import com.xm.im.client.handler.FirstChannelHandler;
+import com.xm.im.client.handler.ClientCmdHandler;
 import com.xm.im.handler.PacketDecodeHandler;
 import com.xm.im.handler.PacketEncodeHandler;
 import com.xm.im.handler.PacketSimpleHandler;
 import com.xm.im.handler.PacketSplitHandler;
-import com.xm.im.handler.TestInbound;
-import com.xm.im.server.handler.FirstServerChannelHandler;
+import com.xm.im.server.handler.ServerCmdHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
 
 /**
  * @author xm
@@ -40,7 +36,7 @@ public class MyImServer {
                     ch.pipeline()
                         .addLast(new PacketSplitHandler())
                         .addLast(new PacketDecodeHandler())
-//                        .addLast(new FirstServerChannelHandler())
+                        .addLast(new ServerCmdHandler())
                         .addLast(new PacketSimpleHandler())
                         .addLast(new PacketEncodeHandler())
                     ;

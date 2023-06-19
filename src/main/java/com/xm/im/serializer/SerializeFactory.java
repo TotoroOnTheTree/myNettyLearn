@@ -17,14 +17,13 @@ public class SerializeFactory {
      */
     public static Serializer get(byte type) {
         SerializeTypeEnum typeEnum = SerializeTypeEnum.fromCode(type);
-        Serializer serializer;
+        Serializer serializer = null;
         switch (typeEnum) {
-            case UNKNOWN:
-                serializer = null;
-                break;
             case JSON:
-            default:
                 serializer = new JsonSerializer();
+            case UNKNOWN:
+            default:
+                ;
         }
         return serializer;
     }
