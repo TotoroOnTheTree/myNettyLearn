@@ -5,6 +5,7 @@ import com.xm.im.cmd.Command;
 import com.xm.im.cmd.impl.HeartBeatCmd;
 import com.xm.im.cmd.impl.HeartBeatRespCmd;
 import com.xm.im.cmd.impl.SendMsgCmd;
+import com.xm.im.cmd.impl.StringCmd;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import java.util.List;
@@ -17,6 +18,7 @@ public class ServerCmdHandler extends SimpleChannelInboundHandler<CmdEntity> {
         initCommand();
     }
     private static void initCommand(){
+        commandList.add(new StringCmd());
         commandList.add(new SendMsgCmd());
         commandList.add(new HeartBeatCmd());
     }

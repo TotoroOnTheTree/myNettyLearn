@@ -1,21 +1,21 @@
 package com.xm.im.client;
 
 import com.xm.im.client.handler.ClientCmdHandler;
+import com.xm.im.cmd.CmdTypeEnum;
+import com.xm.im.cmd.entity.HeartBeat;
 import com.xm.im.handler.PacketDecodeHandler;
+import com.xm.im.handler.CmdEncodeHandler;
 import com.xm.im.handler.PacketEncodeHandler;
 import com.xm.im.handler.PacketSplitHandler;
 import com.xm.im.protol.Packet;
-import com.xm.im.protol.PacketCodec;
 import com.xm.im.protol.PacketCreator;
 import com.xm.im.serializer.SerializeTypeEnum;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.concurrent.ScheduledFuture;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +47,7 @@ public class MyImClient {
                         .addLast(new PacketSplitHandler())
                         .addLast(new PacketDecodeHandler())
                         .addLast(new ClientCmdHandler())
+                        .addLast(new CmdEncodeHandler())
                         .addLast(new PacketEncodeHandler())
                     ;
                 }
@@ -86,12 +87,8 @@ public class MyImClient {
                 System.out.print("请输入内容：");
                 String msg = scanner.nextLine();
                 byte[] bytes = msg.getBytes(StandardCharsets.UTF_8);
-                Packet packet = Packet.builder().version(new Byte("1"))
-                    .command(new Byte("1"))
-                    .serializeType(SerializeTypeEnum.UNKNOWN.getCode())
-                    .len(bytes.length)
-                    .data(bytes)
-                    .build();
+                Packet packet = PacketCreator.create(SerializeTypeEnum.UNKNOWN.getCode(), CmdTypeEnum.STRING.getType(),bytes);
+                //输入内容当做文本传递
                 clientChannel.writeAndFlush(packet);
             }
         });
@@ -103,10 +100,8 @@ public class MyImClient {
         clientChannel.eventLoop().schedule(() -> {
             if (clientChannel.isActive()) {
                 System.out.println("发送心跳");
-                ByteBuf buffer = clientChannel.alloc().buffer();
-                PacketCodec.encode(buffer, PacketCreator.HEART_BEAT);
-                clientChannel.writeAndFlush(buffer);
-//                buffer.release();
+                HeartBeat heartBeat = new HeartBeat("xm");
+                clientChannel.writeAndFlush(heartBeat);
                 //再次注册心跳
                 heartBeat(HEART_DELAY);
             }

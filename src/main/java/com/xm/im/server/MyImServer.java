@@ -1,7 +1,7 @@
 package com.xm.im.server;
 
-import com.xm.im.client.handler.ClientCmdHandler;
 import com.xm.im.handler.PacketDecodeHandler;
+import com.xm.im.handler.CmdEncodeHandler;
 import com.xm.im.handler.PacketEncodeHandler;
 import com.xm.im.handler.PacketSimpleHandler;
 import com.xm.im.handler.PacketSplitHandler;
@@ -38,6 +38,7 @@ public class MyImServer {
                         .addLast(new PacketDecodeHandler())
                         .addLast(new ServerCmdHandler())
                         .addLast(new PacketSimpleHandler())
+                        .addLast(new CmdEncodeHandler())
                         .addLast(new PacketEncodeHandler())
                     ;
                 }

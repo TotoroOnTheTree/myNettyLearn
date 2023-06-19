@@ -14,10 +14,11 @@ import io.netty.handler.codec.MessageToByteEncoder;
  * @date 2023/4/25
  * @since 1.0
  **/
-public class PacketEncodeHandler extends MessageToByteEncoder<Packet> {
+public class CmdEncodeHandler extends MessageToByteEncoder<CmdPacket> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, Packet packet, ByteBuf out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, CmdPacket cmd, ByteBuf out) throws Exception {
+        Packet packet = PacketCreator.createByJson(cmd.getCommandType(), cmd);
         PacketCodec.encode(out,packet);
     }
 }

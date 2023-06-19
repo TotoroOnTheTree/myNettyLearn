@@ -1,7 +1,7 @@
 package com.xm.im.handler;
 
 import com.xm.im.cmd.CmdEntity;
-import com.xm.im.cmd.CommandType;
+import com.xm.im.cmd.CmdTypeEnum;
 import com.xm.im.protol.Packet;
 import com.xm.im.protol.PacketCodec;
 import com.xm.im.serializer.SerializeFactory;
@@ -11,6 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xm
@@ -30,16 +31,34 @@ public class PacketDecodeHandler extends ByteToMessageDecoder {
         //获取序列化对象
         Serializer serializer = SerializeFactory.get(packet.getSerializeType());
         //获取命令类型
-        Class commandClazz = CommandType.getCommand(packet.getCommand());
-        //找不到命令的转为字符串
-        if(commandClazz==null || serializer == null){
-            out.add(new String(packet.getData(), StandardCharsets.UTF_8));
+        CmdTypeEnum cmdType = CmdTypeEnum.getCommand(packet.getCommand());
+        //找不到类型不处理
+        if(cmdType==null && serializer == null){
+            System.out.println("找不到类型不处理");
             return;
         }
+        //空包，将packet交给其他需要处理的handler
+        if (cmdType.isEmpty()) {
+            out.add(packet);
+            return;
+        }
+
+        CmdEntity cmd=null;
+        
+        //如果是文本消息则不序列化
+        if (cmdType.isStr()) {
+            cmd = CmdEntity.builder().commandType(packet.getCommand())
+                .commandClazz(cmdType.getClazz())
+                .commandMsg(new String(packet.getData(),StandardCharsets.UTF_8))
+                .build();
+            out.add(cmd);
+            return;
+        }
+
         //转为命令对象
-        Object command = serializer.deserialize(packet.getData(), commandClazz);
-        CmdEntity cmd = CmdEntity.builder().commandType(packet.getCommand())
-            .commandClazz(commandClazz)
+        Object command = serializer.deserialize(packet.getData(), cmdType.getClazz());
+        cmd = CmdEntity.builder().commandType(packet.getCommand())
+            .commandClazz(cmdType.getClazz())
             .commandMsg(command)
             .build();
         out.add(cmd);
